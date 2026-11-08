@@ -324,18 +324,28 @@ const CARDS = [
     powers:["Estimula el centro respiratorio","Rescate en apnea"], adverse:["Convulsiones a dosis altas"] },
 
   // 🟠 INHALADOS
-  { name:"Isoflurano", color:"dorado", family:"Inhalado", phase:["mant"], tags:["inhalado","mantenimiento"],
+  { name:"Isoflurano", color:"dorado", family:"Inhalado", phase:["mant"], tags:["inhalado","mantenimiento"], doseUnit:"%",
     doses:{ "CAM Perro":"1.28–1.30%", "Mant. Perro":"1.5–2% (hasta 2.5%)", "CAM Gato":"1.63%", "Mant. Gato":"2–2.4%", "Inducción máscara":"Perro 5% / Gato 4%" },
-    doseKey:["1.5","2","1.5-2","2.5","1.3","1.28"], doseUnit:"%",
+    doseBySpecies:{
+      "Perro":["1.28","1.3","1.30","1.28-1.30","1.5","2","1.5-2","2.5"],
+      "Gato":["1.63","2","2.4","2-2.4"]
+    },
+    doseTextBySpecies:{ "Perro":"Perro: CAM 1.28–1.30% · Mantenimiento 1.5–2% (hasta 2.5%)", "Gato":"Gato: CAM 1.63% · Mantenimiento 2–2.4%" },
     powers:["Mantenimiento controlable","Recuperación rápida"], adverse:["Depresión cardiorrespiratoria","Hipotensión"] },
 
-  { name:"Sevoflurano", color:"dorado", family:"Inhalado", phase:["mant"], tags:["inhalado","mantenimiento"],
+  { name:"Sevoflurano", color:"dorado", family:"Inhalado", phase:["mant"], tags:["inhalado","mantenimiento"], doseUnit:"%",
     doses:{ "CAM Perro":"2.09–2.36%", "Mant. Perro":"2.8–3.5%", "CAM Gato":"2.58%", "Mant. Gato":"3.1–3.9%" },
-    doseKey:["2.8","3.5","2.8-3.5","3.1","3.9"], doseUnit:"%",
+    doseBySpecies:{
+      "Perro":["2.09","2.36","2.09-2.36","2.8","3.5","2.8-3.5"],
+      "Gato":["2.58","3.1","3.9","3.1-3.9"]
+    },
+    doseTextBySpecies:{ "Perro":"Perro: CAM 2.09–2.36% · Mantenimiento 2.8–3.5%", "Gato":"Gato: CAM 2.58% · Mantenimiento 3.1–3.9%" },
     powers:["Inducción/recuperación rápida","Poco irritante"], adverse:["Depresión cardiorrespiratoria"] },
 
-  { name:"Halotano", color:"dorado", family:"Inhalado", phase:["mant"], tags:["inhalado","mantenimiento"],
-    doses:{ "CAM Perro":"0.94%" }, doseKey:["0.94"], doseUnit:"%",
+  { name:"Halotano", color:"dorado", family:"Inhalado", phase:["mant"], tags:["inhalado","mantenimiento"], doseUnit:"%",
+    doses:{ "CAM Perro":"0.94%" },
+    doseBySpecies:{ "Perro":["0.94"], "Gato":["0.94"] },
+    doseTextBySpecies:{ "Perro":"Perro: CAM 0.94%", "Gato":"CAM 0.94% (valor de perro; la diapositiva no da gato)" },
     powers:["Potente mantenimiento"], adverse:["Arritmogénico","Hepatotoxicidad"] },
 
   // 🟤 LOCALES
@@ -555,7 +565,9 @@ function submitDose(){
 
   const accepted=acceptedDoses(card, esp);
   const val=normalizeNum(modalInput.value);
-  const firstDose=Object.values(card.doses)[0];
+  // Texto de la dosis correcta: específico por especie si existe
+  const firstDose = (card.doseTextBySpecies && card.doseTextBySpecies[esp])
+                    || Object.values(card.doses)[0];
 
   if(accepted.length===0){
     // fármaco sin dosis numérica (ej: naloxona, doxapram)
@@ -584,7 +596,8 @@ modalInput.addEventListener("keydown",e=>{ if(e.key==="Enter") submitDose(); });
 modalBg.addEventListener("click",e=>{ if(e.target===modalBg) closeModal(); });
 
 function registerChoice(card, phase, doseOk){
-  const doseText=Object.values(card.doses)[0];
+  const esp=game.patient.especie;
+  const doseText=(card.doseTextBySpecies && card.doseTextBySpecies[esp]) || Object.values(card.doses)[0];
   game.chosen[phase].push({ name:card.name, tags:card.tags, dose:doseText, doseOk });
   // puntos por dosis correcta
   if(doseOk===true){ game.score+=10; }
