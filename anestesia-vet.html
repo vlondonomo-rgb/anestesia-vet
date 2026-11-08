@@ -123,9 +123,10 @@
 
   /* ===== Modal escribir dosis ===== */
   .modal-bg {
-    position:fixed; inset:0; background:rgba(5,10,20,.78); display:flex; align-items:center;
+    position:fixed; inset:0; background:rgba(5,10,20,.78); display:none; align-items:center;
     justify-content:center; padding:16px; z-index:50;
   }
+  .modal-bg.open { display:flex; }
   .modal {
     background:var(--panel); border:1px solid #35507a; border-radius:16px; padding:22px;
     max-width:420px; width:100%; text-align:center;
@@ -217,7 +218,7 @@
 </div>
 
 <!-- Modal para escribir la dosis -->
-<div class="modal-bg hidden" id="modalBg">
+<div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3 id="modalDrug">Fármaco</h3>
     <div class="sub" id="modalFam">Familia</div>
@@ -534,11 +535,11 @@ function openDoseModal(card, phase){
   modalQ.innerHTML=`¿Qué dosis de <span class="drug">${card.name}</span> usas para <span class="sp">${esp}</span>? <small>(${unit})</small>`;
   modalInput.value=""; modalFeedback.textContent=""; modalFeedback.className="mfeedback";
   modalSubmit.textContent="Comprobar ✍️";
-  modalBg.classList.remove("hidden");
+  modalBg.classList.add("open");
   setTimeout(()=>modalInput.focus(),50);
 }
 
-function closeModal(){ modalBg.classList.add("hidden"); modalCtx=null; }
+function closeModal(){ modalBg.classList.remove("open"); modalCtx=null; }
 
 function submitDose(){
   if(!modalCtx) return;
